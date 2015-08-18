@@ -31,13 +31,11 @@ def which_values_are_t(dictionary, t):
 	print keys
 
 
-def kmer_frequency(text, k):
+def kmer_frequency(text, kmer_length):
 # Creates a dictionary of {kmers in text: times they occur in text}
 	kmers_counts = {}
-	run_count = 0
-	most_frequent_vals = []
-	for x in range(len(text)-k):
-		pattern = text[x:x + k]
+	for x in range(len(text)-kmer_length):
+		pattern = text[x:x + kmer_length]
 		if pattern not in kmers_counts:
 			frequency = pattern_count(text, pattern)
 			kmers_counts[pattern] = frequency
@@ -91,7 +89,7 @@ def clump_finding(genome, k, t, L):
 	for x in range((4^k) - 1):
 		if 
 
-
+# Not finished. See alt_soln_clumps.txt
 def clump_finding(genome, k, L, t):
 	# A list of lists. Each index represents a clump, each value 
 	# represents the kmers in that clump seen >= t times.
@@ -111,3 +109,116 @@ def pop_recurrences(seq):
 	set = {}
 	map(set.__setitem__, seq, [])
 	return set.keys()
+
+
+
+def hamming_distance(p, q):
+	num_differences = 0
+	for x in range(len(p)):
+		if p[x] != q[x]:
+			num_differences += 1
+	return num_differences
+
+
+def appx_kmer_matching_indices(kmer, genome, hamming):
+# Returns indices of kmers that match input kmer up to hamming mismatches.
+	approximate_kmer_index = []
+	for x in range(len(genome) - len(kmer) + 1):
+		if hamming_distance(kmer, genome[x:x + len(kmer)]) <= hamming:
+			approximate_kmer_index.append(x)
+	return approximate_kmer_index
+
+def appx_kmer_matches_string(kmer, genome, hamming):
+	approximate_kmers = []
+	for x in range(len(genome) - len(kmer) + 1):
+		if hamming_distance(kmer, genome[x:x + len(kmer)]) <= hamming:
+			approximate_kmers.append(genome[x:x + len(kmer)])
+	return approximate_kmers
+
+def appx_kmer_matches_list(kmer, kmer_list, hamming):
+	approximate_kmers = []
+	for x in kmer_list:
+		hamm = hamming_distance(kmer, x)
+		if hamm != 0 and hamm <= hamming:
+			approximate_kmers.append(x)
+	return approximate_kmers
+
+def some_bullshit(genome, kmer_length, mismatches):
+	match_counts = {}
+	kmer_count = kmer_frequency(genome, kmer_length)
+	for base_kmer, frequency in kmer_count.iteritems():
+		for kmer in kmer_count.keys():
+			hamm = hamming_distance(base_kmer, kmer)
+			if hamm!= 0 and hamm <= mismatches:
+				kmer_count[base_kmer] += kmer_count[kmer]
+	return kmer_count
+
+
+keys_for_max_values()
+
+def kmer_mismatches(genome, kmer_length, mismatches):
+	match_frequency = {}
+	kmer_count = kmer_frequency(genome, kmer_length)
+	for base_kmer, frequency in kmer_count.iteritems():
+		match_frequency[base_kmer] = frequency
+		# Look for mismatches in kmer_count
+		matches = appx_kmer_matches_list(base_kmer, kmer_count.keys(), mismatches)
+		for x in matches:
+			match_frequency[base_kmer] += kmer_count[x]
+	return match_frequency
+
+
+def immediate_neighbors(sequence):
+	nucleotides = ['A', 'T', 'G', 'C']
+	Neighborhood = [sequence]
+	for x in range(len(sequence)):
+		seq_mutable = list(sequence)
+		for n in nucleotides:
+			if sequence[x] != n:
+				seq_mutable[x] = n
+				Neighborhood.append("".join(seq_mutable))
+	return Neighborhood
+
+def suffix(pattern):
+	return pattern[1:]
+
+
+def Neighbors(sequence, mismatches):
+# Generates all possible k-mers with at most x mismatches
+	nucleotides = ['A', 'T', 'G', 'C']
+	if mismatches == 0:
+		return sequence
+	if len(sequence) == 1:
+		return nucleotides
+	Neighborhood = []
+	suffix_neighbors = Neighbors(suffix(sequence), mismatches)
+	for x in suffix_neighbors:
+		if hamming_distance(suffix(sequence), x) < mismatches:
+			for n in nucleotides:
+				Neighborhood.append(n + x)
+		else:
+			Neighborhood.append(sequence[0] + x)
+	return Neighborhood
+
+def total_mismatches(genome, kmer_length, mismatches):
+	kmers_counts = {}
+	for x in range(len(genome)-kmer_length):
+		kmer = genome[x:x + kmer_length]
+		kmers_counts[kmer]
+		if kmer not in kmers_counts:
+			kmer_mismatches = Neighbors(kmer, mismatches)
+			kmers_counts[kmer]
+			for neighbor in kmer_mismatches
+			kmers_counts[kmer] = frequency
+
+		else:
+			kmers_counts[kmer] += 1
+	return kmers_counts
+
+
+	# Go through all k-mers in genome
+
+	# Generate all possible mismatches with up to d differences
+	# for each k-mer in genome
+
+	# For each of those mismatches, count how many are in genome	
